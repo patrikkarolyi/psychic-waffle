@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour
 {
     public int m_PlayerNumber = 1;
     public float m_Speed = 12f;
+    public Animator animator;
     private Rigidbody m_Rigidbody;
 
     private string m_VertMovementAxisName;
@@ -16,6 +17,13 @@ public class PlayerController : MonoBehaviour
     private string m_HorzRotationAxisName;
     private float m_VertRotationInputValue;
     private float m_HorzRotationInputValue;
+
+    private Vector3 movementDirection;
+    private Vector3 rotationDirection;
+
+    private float animatorSpeed = 0;
+    private bool animatorAmingPrev = false;
+    private bool animatorAming = false;
 
     private void Awake()
     {
@@ -60,30 +68,56 @@ public class PlayerController : MonoBehaviour
     {
         Move();
         Turn();
+        SetAnimator();
     }
 
     private void Move()
     {
-        // Create a vector in the direction the tank is facing with a magnitude based on the input, speed and the time between frames.
-        Vector3 direction = (Vector3.forward * m_VertMovementInputValue + Vector3.right * m_HorzMovementInputValue);
 
-        // Apply this movement to the rigidbody's position.
-        m_Rigidbody.MovePosition(m_Rigidbody.position + Time.deltaTime * m_Speed * direction);
+        movementDirection = (Vector3.forward * m_VertMovementInputValue + Vector3.right * m_HorzMovementInputValue);
+
+        m_Rigidbody.MovePosition(m_Rigidbody.position + Time.deltaTime * m_Speed * movementDirection);
+
+        animatorSpeed = movementDirection.sqrMagnitude;
     }
 
     private void Turn()
     {
+        animatorAming = false;
+
         if (Math.Abs(m_VertRotationInputValue) > 0.2 || Math.Abs(m_HorzRotationInputValue) > 0.2)
         {
-            Vector3 direction = (Vector3.left * m_VertRotationInputValue + Vector3.forward * m_HorzRotationInputValue);
+            rotationDirection = (Vector3.left * m_VertRotationInputValue + Vector3.forward * m_HorzRotationInputValue);
 
-            transform.rotation = Quaternion.LookRotation(direction);
+            animatorAming = true;
         }
         else if (Math.Abs(m_VertMovementInputValue) > 0.2 || Math.Abs(m_HorzMovementInputValue) > 0.2)
         {
-            Vector3 direction = (Vector3.left * m_VertMovementInputValue + Vector3.forward * m_HorzMovementInputValue);
+            rotationDirection = (Vector3.left * m_VertMovementInputValue + Vector3.forward * m_HorzMovementInputValue);
+        }
 
-            transform.rotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.LookRotation(rotationDirection);
+    }
+
+    private void SetAnimator()
+    {
+        animator.SetFloat("speed", animatorSpeed);
+
+        if (animatorAmingPrev != animatorAming)
+        {
+            animator.SetBool("isAming", animatorAming);
+            animatorAmingPrev = animatorAming;
+        }
+        
+        if (animatorAming)
+        {
+            Vector3 relativeDirection = Quaternion.AngleAxis(90, Vector3.up) * rotationDirection;
+
+            float x = -Vector3.Dot(movementDirection.normalized, rotationDirection.normalized);
+            float z = Vector3.Dot(movementDirection.normalized, relativeDirection.normalized);
+
+            animator.SetFloat("amingMovingForward",  Math.Sign(x));
+            animator.SetFloat("amingMovingRight", Math.Sign(z));
         }
     }
 }
