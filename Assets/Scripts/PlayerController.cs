@@ -5,7 +5,7 @@ public class PlayerController : MonoBehaviour
 {
     public int m_PlayerNumber = 1;
     public float m_Speed = 12f;
-    public Animator animator;
+    private Animator m_Animator;
     private Rigidbody m_Rigidbody;
 
     private string m_VertMovementAxisName;
@@ -27,12 +27,14 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        m_Animator = GetComponentInChildren<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
     }
 
 
     private void OnEnable()
     {
+        m_Animator.enabled = true;
         m_Rigidbody.isKinematic = false;
         m_VertMovementInputValue = 0f;
         m_HorzMovementInputValue = 0f;
@@ -43,12 +45,14 @@ public class PlayerController : MonoBehaviour
 
     private void OnDisable()
     {
+        m_Animator.enabled = false;
         m_Rigidbody.isKinematic = true;
     }
 
 
     private void Start()
     {
+        m_Rigidbody.isKinematic = false;
         m_VertMovementAxisName = "Vertical" + m_PlayerNumber;
         m_HorzMovementAxisName = "Horizontal" + m_PlayerNumber;
         m_VertRotationAxisName = "VerticalRotation" + m_PlayerNumber;
@@ -73,10 +77,13 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-
         movementDirection = (Vector3.forward * m_VertMovementInputValue + Vector3.right * m_HorzMovementInputValue);
 
-        m_Rigidbody.MovePosition(m_Rigidbody.position + Time.deltaTime * m_Speed * movementDirection);
+        float mod = 1f;
+
+        if (animatorAming) mod = 0.5f;
+
+        m_Rigidbody.MovePosition(m_Rigidbody.position + Time.deltaTime * m_Speed * mod * movementDirection);
 
         animatorSpeed = movementDirection.sqrMagnitude;
     }
@@ -101,14 +108,14 @@ public class PlayerController : MonoBehaviour
 
     private void SetAnimator()
     {
-        animator.SetFloat("speed", animatorSpeed);
+        m_Animator.SetFloat("speed", animatorSpeed);
 
         if (animatorAmingPrev != animatorAming)
         {
-            animator.SetBool("isAming", animatorAming);
+            m_Animator.SetBool("isAming", animatorAming);
             animatorAmingPrev = animatorAming;
         }
-        
+
         if (animatorAming)
         {
             Vector3 relativeDirection = Quaternion.AngleAxis(90, Vector3.up) * rotationDirection;
@@ -116,8 +123,10 @@ public class PlayerController : MonoBehaviour
             float x = -Vector3.Dot(movementDirection.normalized, rotationDirection.normalized);
             float z = Vector3.Dot(movementDirection.normalized, relativeDirection.normalized);
 
-            animator.SetFloat("amingMovingForward",  Math.Sign(x));
-            animator.SetFloat("amingMovingRight", Math.Sign(z));
+            if (Math.Abs(z) < 0.1) z = 0;
+
+            m_Animator.SetFloat("amingMovingForward", x);
+            m_Animator.SetFloat("amingMovingRight", z);
         }
     }
 }
