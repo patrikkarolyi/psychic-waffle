@@ -103,7 +103,10 @@ public class PlayerController : MonoBehaviour
             rotationDirection = (Vector3.left * m_VertMovementInputValue + Vector3.forward * m_HorzMovementInputValue);
         }
 
-        transform.rotation = Quaternion.LookRotation(rotationDirection);
+        if (rotationDirection != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(rotationDirection);
+        }
     }
 
     private void SetAnimator()
