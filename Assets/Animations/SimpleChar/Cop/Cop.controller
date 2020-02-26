@@ -314,12 +314,11 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -203655887218126122, guid: 57a66a5239f0214469ee40a2c32c29ac,
-    type: 3}
+  m_Motion: {fileID: 7400000, guid: 095d2df558aa5c944a88619159c0cc34, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
-  m_CycleOffsetParameter: 
+  m_CycleOffsetParameter: speed
   m_TimeParameter: speed
 --- !u!206 &4152597277822704250
 BlendTree:
