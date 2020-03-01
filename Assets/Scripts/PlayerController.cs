@@ -46,13 +46,12 @@ public class PlayerController : MonoBehaviour
     private void OnDisable()
     {
         m_Animator.enabled = false;
-        m_Rigidbody.isKinematic = true;
+        //m_Rigidbody.isKinematic = true; when remains a corpse
     }
 
 
     private void Start()
     {
-        m_Rigidbody.isKinematic = false;
         m_VertMovementAxisName = "Vertical" + m_PlayerNumber;
         m_HorzMovementAxisName = "Horizontal" + m_PlayerNumber;
         m_VertRotationAxisName = "VerticalRotation" + m_PlayerNumber;
@@ -103,7 +102,10 @@ public class PlayerController : MonoBehaviour
             rotationDirection = (Vector3.left * m_VertMovementInputValue + Vector3.forward * m_HorzMovementInputValue);
         }
 
-        transform.rotation = Quaternion.LookRotation(rotationDirection);
+        if (rotationDirection != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(rotationDirection);
+        }
     }
 
     private void SetAnimator()
